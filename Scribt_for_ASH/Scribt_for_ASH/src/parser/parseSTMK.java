@@ -9,26 +9,18 @@ import java.util.regex.Pattern;
 
 
 
-public class parseSTMK {
+public class parseSTMK extends parsePdf {
 	
 	private enum parse_state {
 		searchTop,
 		searchBottom,
-		name,
+	//	name,
 		date,
-		searchLeistungAlt,
-		searchAenderung,
+	//	searchLeistungAlt,
+	//	searchAenderung,
 		done;
 	}
 	
-	private String Nachname = "";
-	private String Datum = "";
-	private String Kennzahl = "";
-	private String Leistung;
-	private String inputString = "";
-	private String LeistungNeu = "";
-	private String LeistungAlt = "";
-	private float Differenz = 0;
 	parse_state state = parse_state.searchTop;
 	
 
@@ -36,23 +28,15 @@ public class parseSTMK {
 		{
 			super();
 		}
-		
-		public synchronized void setString(String inputString) {
-			this.inputString = inputString;
-		}
-		
+	
+		@Override
 		public void parse() throws FileNotFoundException, IOException
 		{
 			boolean aenderung = false;
-			
-			
-			
-			String[] excludeTitles = {"di","mag","mba","dr","ddr","mmag","ing","dipl.-ing","herr","frau"};
-			
+				
 			try {
 				BufferedReader in = new BufferedReader(new StringReader(inputString));
 				String zeile = null;
-				String zeile_old = "";
 				while ((zeile = in.readLine()) != null) {
 					//System.out.println("Gelesene Zeile: " + zeile);
 					
@@ -74,23 +58,39 @@ public class parseSTMK {
 								//System.out.println("GZ found");
 							} else if (zeile.startsWith("Ggst.:")) {
 								
-						/*		String partNachname = zeile.substring(7);
+								String tmpName = zeile.substring(7);
 								
+								/*int i= 0;	//Nachname normal an erster Stelle
+								String[] zeileArray = tmpName.split(" ",5);
 								for (int j=0; j< excludeTitles.length ;j++) {
-									if (partNachname.toLowerCase().startsWith(excludeTitles[j]) {
-										partNachname = partNachname.substring(excludeTitles[j].length());
-										break;
-									} if (partNachname.toLowerCase().startsWith(excludeTitles[j]+".")) {
-										partNachname = partNachname.substring(excludeTitles[j].length()+1);
-										break;
+									if (zeileArray[i].toLowerCase().equals(excludeTitles[j]) || zeileArray[i].toLowerCase().equals(excludeTitles[j]+".")) {
+										i++;
 									}
 								}
-										TODO: Herr Frau Titel.. entfernen evntl Nachname suchen
-											
+								if (zeileArray.length >= i+1) {
+									if (zeileArray[i].equals("und")) i+=2;
+								}
+								if (zeileArray.length < i+1) {
+									System.out.println("_NO_ Nachname found\n");
+								} else {
+									this.Nachname = zeileArray[i];
+								}  TODO Nachname suchen -> funktioniert nicht richtig.. is fehleranfälliger als ohne
 								*/
 								
-								this.Nachname = zeile.substring(7);
-								//System.out.println("NN found");
+								this.Nachname = tmpName.replace("," , "")
+										.replace("Herr ", "")
+										.replace("Frau ", "")
+										.replace("Dr. ", "")
+										.replace("Dr.", "")
+										.replace("Dr", "")
+										.replace("DI. ", "")
+										.replace("DI ", "")
+										.replace("DI", "")
+										.replace("Ing. ", "")
+										.replace("Ing ", "")
+										.replace("Ing", "")
+										.trim();		//TODO regex
+															
 								this.state = parse_state.date;
 							}
 							break;
@@ -122,7 +122,7 @@ public class parseSTMK {
 								String s = "";
 								while (m.find()) {
 								    s = m.group(0);
-								    System.out.println(s);
+								  //  System.out.println(s);
 								    break;
 								}
 								int end = s.indexOf("kW");
@@ -130,67 +130,17 @@ public class parseSTMK {
 									this.LeistungNeu = s.substring(0, s.indexOf("kW"));
 									this.Leistung = "";
 									this.LeistungAlt = s.substring(s.lastIndexOf(" "));
-									this.Differenz = Float.parseFloat(LeistungNeu.replace(',', '.')) - Float.parseFloat(LeistungAlt.replace(',', '.'));
 								}					
 								state = parse_state.done;
 							}
 							break;
-					}
-					
-					
-					if (state == parse_state.done){
-						return;
-					}
-					zeile_old = zeile;
-										
-					
+							
+							case done:
+								return;
+					}	
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}	
-
-
-		public String getNachname() {
-			return Nachname;
-		}
-
-		public String getDatum() {
-			return Datum;
-		}
-
-		public String getKennzahl() {
-			return Kennzahl;
-		}
-
-		public String getLeistung() {
-			return Leistung;
-		}
-		
-		public String getLeistungNeu() {
-			return LeistungNeu;
-		}
-		
-		public String getLeistungAlt() {
-			return LeistungAlt;
-		}
-		
-		public String getDifferenz() {
-			if (this.Differenz == 0) return "";
-			else return abs(this.Differenz).toString().replace('.', ',');
-		}
-		
-		public String getErweiterung() {
-			if (this.Differenz == 0) return "";
-			else if (this.Differenz > 0) return "Erweiterung";
-			else return "Reduzierung";
-		}
-		
-		private Float abs(float diff) {
-			if (diff  < 0) {
-				diff *= -1;
-			}
-			return diff;
-		}
-	
+		}		
 }
