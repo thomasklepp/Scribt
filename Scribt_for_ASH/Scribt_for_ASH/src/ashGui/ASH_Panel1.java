@@ -11,6 +11,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import parser.parseNOE;
+import parser.parseOOE;
+import parser.parseSTMK;
+
+import mainScribt.WorkerBeeForASH;
+
 public class ASH_Panel1 extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;
@@ -24,7 +30,11 @@ public class ASH_Panel1 extends JPanel implements ActionListener {
 	private boolean destinationSelected = false;
 	private boolean rename = false;
 	
-	public ASH_Panel1() {
+	private ASH_JFrame ash_jFrame = null;
+	
+	public ASH_Panel1(ASH_JFrame ash_jFrame) {
+		
+		this.ash_jFrame = ash_jFrame;
 		
 		this.setLayout(new BorderLayout());
 		
@@ -124,8 +134,21 @@ public class ASH_Panel1 extends JPanel implements ActionListener {
 		
 		// startButton
 		if (e.equals("start")) {
+			
+			switch (ash_jFrame.getSelected_parser_typ()) {
+				case ASH_JFrame.parser_typ_BGLD: { } break;
+				case ASH_JFrame.parser_typ_KTN: {} break;
+				case ASH_JFrame.parser_typ_NOE: { ash_jFrame.setWorkerBee(new WorkerBeeForASH(new parseNOE())); } break;
+				case ASH_JFrame.parser_typ_OOE: { ash_jFrame.setWorkerBee(new WorkerBeeForASH(new parseOOE())); } break;
+				case ASH_JFrame.parser_typ_SBG: {} break;
+				case ASH_JFrame.parser_typ_STMK: { ash_jFrame.setWorkerBee(new WorkerBeeForASH(new parseSTMK())); } break;
+				case ASH_JFrame.parser_typ_T: {} break;
+				case ASH_JFrame.parser_typ_VBG: {} break;
+				case ASH_JFrame.parser_typ_W: {} break;
+				default: break;
+			}
 			this.setOutput("starting...");
-			new Thread(ASH_JFrame.instance().getWorkerBee()).start();
+			
 		}
 	}
 

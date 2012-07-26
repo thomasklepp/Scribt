@@ -1,5 +1,7 @@
 package mainScribt;
 
+import javax.swing.SwingUtilities;
+
 import ashGui.ASH_JFrame;
 
 
@@ -10,7 +12,12 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 
-		ASH_JFrame.instance();
+		
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	new ASH_JFrame();
+            }
+		});
 		
 //		@SuppressWarnings("unused")
 //		WorkerBeeForASH workerBee = new WorkerBeeForASH();

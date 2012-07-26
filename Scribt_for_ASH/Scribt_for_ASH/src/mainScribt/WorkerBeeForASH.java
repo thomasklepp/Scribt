@@ -11,17 +11,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import parser.parseNOE;
+import parser.parsePdf;
 
 import ashGui.ASH_JFrame;
 
 public class WorkerBeeForASH implements Runnable {
+	
+	private Thread workingThread = null;
 	
 	String textContent = "";
 	String pathToFiles = "U:/Ökostromdecklung - OSD Team Liste/ASH_files/01-2011";
 	String pathToDestinationFiles = "";
 //	String filenamePDF = "U:/Ökostromdecklung - OSD Team Liste/ASH_files//Anschreiben_6.pdf";
 	
-	parseNOE parser;
+	
 	PDFTextParser pdfTextParserObj;
 	String result = "";
 	
@@ -35,7 +38,15 @@ public class WorkerBeeForASH implements Runnable {
 	int alreadyExisted = 0;
 	int single = 0;
 	
-	public void work() {
+	private parsePdf parser = null;
+	
+	public WorkerBeeForASH(parsePdf parser){
+		this.parser = parser;
+		new Thread(this).start();
+	}
+	
+	@Override
+	public void run() {
 		
 		ASH_JFrame.instance().getContentPane().setOutput("Bee is starting to work...");
 		
@@ -46,7 +57,6 @@ public class WorkerBeeForASH implements Runnable {
 				
 				convertPdfToTxt(listOfFiles[i].getName());
 				
-				parser = new parseNOE();
 				parser.setString(textContent);
 				try {
 					parser.parse();
@@ -147,10 +157,10 @@ public class WorkerBeeForASH implements Runnable {
 				}
 			}
 			
-		}
-		
+		}		
 		
 	}
+
 	
 	public void convertPdfToTxt(String filenamePDF) {
 		
@@ -278,9 +288,5 @@ public class WorkerBeeForASH implements Runnable {
 		this.pathToDestinationFiles = pathToDestinationFiles;
 	}
 
-	@Override
-	public void run() {
-		work();
-	}
 	
 }
